@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>JSSpec results</title>
+<link rel="stylesheet" type="text/css" href="JSSpec.css" />
+<script type="text/javascript" src="../../public/javascripts/jquery.js"></script>
+<script type="text/javascript" src="../../public/javascripts/jquery.debug.js"></script>
+<script type="text/javascript" src="../../public/javascripts/iterators.js"></script>
+<!-- -->
+<script type="text/javascript" src="../../public/javascripts/jquery.tablelib.js"></script>
+<script type="text/javascript" src="diff_match_patch.js"></script>
+<script type="text/javascript" src="JSSpec.js"></script>
+<script type="text/javascript">// <![CDATA[
+
+V = value_of
+sb_row1 = function(v){ value_of(v).should_be( "testrow1" ) }
+$TR = $.row
+
+describe('to_tr', {
+  'should convert array to a row' : function(){
+    var t = jQuery.table()
+    value_of(t.array_to_tr([])).should_be('<tr></tr>');
+    value_of(t.array_to_tr(['foo'])).should_be('<tr><td>foo</td></tr>');
+    value_of(t.array_to_tr(['foo','bar'])).should_be('<tr><td>foo</td><td>bar</td></tr>');
+    value_of(t.array_to_tr(['foo','bar'], {key:'value'})).should_be('<tr key="value"><td>foo</td><td>bar</td></tr>');
+  }
+});
+
+describe('$.row', {
+  'should know the table it belongs to' : function(){
+    V( $TR("#testtable tbody tr:first").table().$.attr("id") ).should_be('testtable')
+    V( $("#testtable tbody tr:first").row().table().$.attr("id") ).should_be('testtable')
+  },
+  'should find its data children' : function(){
+    V( $($TR("#testtable tbody tr:first").tds()[0]).text() ).should_be('turtle')
+    V( $($TR("#testtable tbody tr:first").tds()[1]).text() ).should_be('dog')
+  },
+  'should find its data children from thead data' : function(){
+    V( $TR("#testtable tbody tr:first").td('sea').text() ).should_be('turtle')
+    V( $TR("#testtable tbody tr:first").td('land').text() ).should_be('dog')
+  },
+  'should create an array of its data text' : function(){
+    V( $TR("#testtable tbody tr:first").texts() ).should_be(['turtle','dog'])
+  },
+  'should find its data text by index' : function(){
+    V( $TR("#testtable tbody tr:first").at(0) ).should_be('turtle')
+    V( $TR("#testtable tbody tr:first").at('sea') ).should_be('turtle')
+    V( $TR("#testtable tbody tr:first").at(1) ).should_be('dog')
+  },
+  'should convert to an object' : function(){
+    V( $TR("#testrow1").to_object().sea  ).should_be("turtle")
+    V( $TR("#testrow1").to_object().land ).should_be("dog")
+     sb_row1( $TR("#testrow1").to_object( {attributes : true} ).id )
+    V( $TR("#testrow2").to_object().sea  ).should_be("whale")
+    V( $TR("#testrow2").to_object().land ).should_be("monkey")
+  }
+});
+
+
+describe('$.table', {
+  'before_all' : function(){
+  t = $.table('#testtable');
+  },
+  'should find its head row' : function(){
+    value_of( t.head_row().$.attr("id") ).should_be( "headrow" )
+    value_of( $('#testtable').table().head_row().$.attr("id") ).should_be( "headrow" )
+    value_of( $(t.head_row().ths()[0]).text() ).should_be('sea')
+    value_of( t.head_row().at(0) ).should_be('sea')
+  },
+  'should give column indexes from head row data' : function(){
+    value_of( t.i('sea')).should_be( 0 )
+    value_of( t.i('land')).should_be( 1 )
+  },
+  'should find its body rows' : function(){
+     sb_row1( $(t.rows()[0]).attr("id") )
+  },
+  'should query rows' : function(){
+     sb_row1( t.rows().attr("id") )
+     sb_row1( t.rows( {sea : 'turtle'} ).attr("id") )
+    value_of( t.rows( {sea : 'whale', land : "monkey"} ).attr("id") )
+      .should_be( "testrow2" )
+     sb_row1( t.rows( {land : 'dog'} ).attr("id") )
+    value_of( t.rows( {sea : 'dog'} )[0] ).should_be( undefined )
+  },
+  'should query rows with functions' : function(){
+    value_of( t.rows( { sea : function(sea){ return sea == "turtle" } }
+      )[0].id ).should_be("testrow1")
+    value_of( t.rows( { sea : function(sea){ return sea != "turtle" } }
+      )[0].id ).should_be("testrow2")
+  },
+  'should query row attributes' : function(){
+    sb_row1( t.rows( "all", {id : 'testrow1'} ).attr("id") )
+    sb_row1( t.rows( {sea : "turtle"}, {id : 'testrow1'} ).attr("id") )
+  },
+  'should convert rows to objects' : function(){
+    value_of( t.objs()[0].sea  ).should_be("turtle")
+    value_of( t.objs()[0].land ).should_be("dog")
+    value_of( t.objs()[1].sea  ).should_be("whale")
+    value_of( t.objs()[1].land ).should_be("monkey")
+  },
+  'should convert rows to objects after function filtering' : function(){
+    value_of( t.objs( { sea : function(sea){ return sea == "turtle" } }
+      )[0].sea ).should_be("turtle")
+    value_of( t.objs( { sea : function(sea){ return sea != "turtle" } }
+      )[0].sea ).should_be("whale")
+  },
+  'should convert rows to objects with row attributes' : function(){
+    value_of( t.objs("all")[0].id ).should_be( undefined )
+    sb_row1(  t.objs("all", { fields : ["id"] } )[0].id )
+  },
+  'should convert rows to objects with limited fields' : function(){
+    value_of( t.objs({ fields : ["sea"] })[0].sea  ).should_be("turtle")
+    value_of( t.objs({ fields : ["sea"] })[0].land  ).should_be(undefined)
+  },
+  'should convert rows to objects with limited fields including row attributes' : function(){
+    sb_row1(  t.objs("all", { fields : ["id"] })[0].id  )
+    value_of( t.objs("all", { fields : ["id"] })[0].sea ).should_be("turtle")
+    sb_row1(  t.objs({fields : []}, { fields : ["id"] })[0].id  )
+    value_of( t.objs({fields : []}, { fields : ["id"] })[0].sea  ).should_be(undefined)
+  },
+  'should list columns' : function(){
+    value_of( t.column( "sea" ) ).should_be( ["turtle","whale"] )
+    value_of( t.column( ["sea","land"] ) ).should_be( [["turtle","dog"],["whale","monkey"]] )
+  }
+});
+
+// ]]></script>
+</head>
+<body>
+  <div id="specloadfailure">
+    <p> <h1> Error running specs !!!! </h1> <h3> most likely a syntax error </h3> </p>
+    <table id="pretesttable" style="display:none;">
+      <thead id="pretesthead">
+        <tr id="preheadrow"> <th>foo</th><th>bar</th> </tr>
+      </thead>
+      <tbody> <tr id="pretestrow1"> <td>foo</td><td>bar</td> </tr> </tbody>
+    </table>
+
+    <table id="testtable">
+      <thead id="testhead">
+        <tr id="headrow"> <th>sea</th><th>land</th> </tr>
+      </thead>
+      <tbody>
+        <tr id="testrow1"> <td>turtle</td><td>dog</td> </tr>
+        <tr id="testrow2"> <td>whale</td><td>monkey</td> </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
