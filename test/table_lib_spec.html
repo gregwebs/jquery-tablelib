@@ -4,22 +4,23 @@
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <title>JSSpec results</title>
 <link rel="stylesheet" type="text/css" href="JSSpec.css" />
-<script type="text/javascript" src="../../public/javascripts/jquery.js"></script>
+<script type="text/javascript" src="../lib/jquery-1.2.3.js"></script>
+<!--
 <script type="text/javascript" src="../../public/javascripts/jquery.debug.js"></script>
-<script type="text/javascript" src="../../public/javascripts/iterators.js"></script>
-<!-- -->
-<script type="text/javascript" src="../../public/javascripts/jquery.tablelib.js"></script>
+ -->
+<script type="text/javascript" src="../lib/iterators.js"></script>
+<script type="text/javascript" src="../jquery.tablelib.js"></script>
 <script type="text/javascript" src="diff_match_patch.js"></script>
 <script type="text/javascript" src="JSSpec.js"></script>
 <script type="text/javascript">// <![CDATA[
 
-V = value_of
-sb_row1 = function(v){ value_of(v).should_be( "testrow1" ) }
-$TR = $.row
+V = value_of;
+sb_row1 = function(v){ value_of(v).should_be( "testrow1" ) };
+$TR = $.row;
 
 describe('to_tr', {
   'should convert array to a row' : function(){
-    var t = jQuery.table()
+    var t = jQuery.table();
     value_of(t.array_to_tr([])).should_be('<tr></tr>');
     value_of(t.array_to_tr(['foo'])).should_be('<tr><td>foo</td></tr>');
     value_of(t.array_to_tr(['foo','bar'])).should_be('<tr><td>foo</td><td>bar</td></tr>');
@@ -29,7 +30,7 @@ describe('to_tr', {
 
 describe('$.row', {
   'should know the table it belongs to' : function(){
-    V( $TR("#testtable tbody tr:first").table().$.attr("id") ).should_be('testtable')
+    V( $.row("#testtable tbody tr:first").table().$.attr("id") ).should_be('testtable')
     V( $("#testtable tbody tr:first").row().table().$.attr("id") ).should_be('testtable')
   },
   'should find its data children' : function(){
