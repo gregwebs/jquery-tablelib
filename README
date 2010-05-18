@@ -1,0 +1,103 @@
+tablelib
+- jquery plugin for serializing objects to html tables
+
+    * gives you table objects and table row objects with convenience methods
+    * serialize objects to table rows and extract objects from table rows
+    * support for saving object properties as row attributes
+    * advanced querying of table rows
+
+download
+http://plugins.jquery.com/project/tableLib
+
+source code
+http://github.com/gregwebs/jquery-tablelib
+
+author and license
+
+copyright Greg Weber dual licensed under GPL and MIT
+dependencies
+
+    * jquery
+    * lib/iterators.js (included in tarball)
+
+usage
+column1     column2
+
+              $.table('#my-table').objs() // == []
+              
+              $.table('#my-table').save(
+                [{column1 : val1, column2 : val2}, {column1 : val3, column2 : val4}]
+              )
+            
+
+column1     column2
+val1    val2
+val3    val4
+
+              // output == [{column1 : val1, column2 : val2},{column1 : val3, column2 : val4}]
+              $.table('#my-table').objs()
+            
+
+querying example
+
+              /* output == [{column1 : val1, column2 : val2}] */
+              $.table('#my-table').objs( {column1 : val1}} )
+              
+              /* output == jQuery object with just the first row */
+              $.table('#my-table').rows( {column1 : val1}} )
+            
+
+API OVERVIEW - more documentation in the code
+Creating table objects: two ways
+
+              $('#my-table').table() == $.table('table')
+            
+
+A reference to the jQuery object that refers to the table is available through the use of '$'
+
+              $.table('#my-table').$  ==  $('#my-table')
+            
+
+WARNING!!
+
+    * every table must contain a thead and a tbody
+    * $.table is inteded to work with a single table and $.row a single row.
+      it is untested for a jQuery object that contatins multiple tables or rows! always use id selectors to ensure only one table or row has been selected 
+
+Additional table functions:
+
+              titles: returns an array of text values for the (last) table head row
+              clear_rows: removes any table body rows
+              head_row == $.headRow( this.$.find("thead > tr:last") )
+              parse: function called when creating table objects
+                by default tries to parse a float as a float instead of as a string
+                override it if you want
+            
+
+row objects
+
+Creating row objects: two ways, two kinds of rows
+kinds of rows
+
+    * normal row
+    * head row
+
+              $('#my-row').row() == $.row('table')
+              
+              $('#my-row').headRow() == $.headRow('table')
+            
+
+A reference to the jQuery object that refers to the row is available through the use of '$'
+
+              $.row('#my-row').$  ==  $('#my-row')
+            
+
+Additional row functions:
+
+              tds or ths : get a jQuery object for the table cells of the row
+              td or th : get a jQuery object for an individual table cell
+              at: retrieve text for an individual table cell
+              transfer_to : transfer a row to a different table
+              to_object : convert a row to an object
+            
+
